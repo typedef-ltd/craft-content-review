@@ -1,0 +1,5 @@
+{% if currentUser and currentUser.can('content-review:viewAllReviews') %}
+    {% redirect 'content-review/all-reviews/overview' 302 %}
+{% else %}
+    {% redirect 'content-review/my-reviews/overview' 302 %}
+{% endif %}

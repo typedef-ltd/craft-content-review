@@ -1,0 +1,12 @@
+{% extends 'content-review/cp/all-reviews/_layout' %}
+
+{% set selectedSidebarItem = 'overdue' %}
+
+{% block content %}
+    <h2>{{ "Overdue"|t('content-review') }}</h2>
+
+    {% include 'content-review/partials/entries-for-review' with {
+        items: items,
+        showReviewer: showReviewer,
+    } %}
+{% endblock %}

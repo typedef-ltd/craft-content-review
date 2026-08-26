@@ -1,0 +1,27 @@
+{% extends '_layouts/cp' %}
+
+{% do view.registerAssetBundle('typedef\\contentreview\\web\\assets\\ContentReviewAsset') %}
+
+{% block sidebar %}
+    {% include "_includes/nav" with {
+        selectedItem: selectedSidebarItem,
+        items: {
+            overview: {
+                label: "Overview"|t("content-review"),
+                url: cpUrl(reviewsBaseUrl ~ "/overview"),
+            },
+            overdue: {
+                label: "Overdue"|t("content-review"),
+                url: cpUrl(reviewsBaseUrl ~ "/overdue"),
+            },
+            due_today: {
+                label: "Due today"|t("content-review"),
+                url: cpUrl(reviewsBaseUrl ~ "/due-today"),
+            },
+            due_soon: {
+                label: "Due soon"|t("content-review"),
+                url: cpUrl(reviewsBaseUrl ~ "/due-soon"),
+            },
+        },
+    } only %}
+{% endblock %}

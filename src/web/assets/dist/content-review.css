@@ -1,0 +1,185 @@
+.contentreview-summary
+{
+    margin-bottom: 24px;
+}
+
+.contentreview-summaryCards
+{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.contentreview-summaryCard
+{
+    background-color: var(--gray-050);
+    border: 1px solid var(--hairline-color);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.contentreview-summaryLabel
+{
+    color: var(--medium-text-color);
+    margin-bottom: 8px;
+}
+
+.contentreview-summaryValue
+{
+    font-size: 2rem;
+    line-height: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.contentreview-summaryMeta
+{
+    color: var(--medium-text-color);
+    margin-bottom: 10px;
+}
+
+.contentreview-summaryBar
+{
+    height: 8px;
+    background-color: var(--gray-100);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.contentreview-summaryBarFill
+{
+    height: 100%;
+    border-radius: 999px;
+}
+
+.contentreview-summaryBarFill--overdue
+{
+    background-color: var(--red-600);
+}
+
+.contentreview-summaryBarFill--due-today
+{
+    background-color: var(--orange-500);
+}
+
+.contentreview-summaryBarFill--due-soon
+{
+    background-color: var(--yellow-300);
+}
+
+.contentreview-entryListHeader
+{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin: 0 0 16px;
+}
+
+.contentreview-entryListHeaderText,
+.contentreview-entryListHeaderAction
+{
+    margin: 0;
+}
+
+.contentreview-entryTableTitle
+{
+    width: 40%;
+}
+
+.contentreview-entryTableDue
+{
+    text-align: right;
+}
+
+.contentreview-entryTableAction
+{
+    width: 1%;
+}
+
+.contentreview-nextReviewDue
+{
+    padding: 16px 0;
+}
+
+.contentreview-reviewDueSummary
+{
+    margin: 0 0 4px;
+    font-weight: bold;
+}
+
+.contentreview-policyHint
+{
+    font-variant: all-small-caps;
+    margin-top: 8px;
+}
+
+.contentreview-markReviewedButton,
+.contentreview-lastReviewed
+{
+    margin-top: 12px;
+}
+
+.contentreview-status
+{
+    padding: 4px 8px;
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: bold;
+    letter-spacing: 0.1rem;
+    border-radius: 4px;
+    margin: 0 0 12px;
+    display: inline-block;
+}
+
+.contentreview-status--overdue
+{
+    background-color: var(--red-600);
+}
+
+.contentreview-status--due-today
+{
+    background-color: var(--orange-500);
+}
+
+.contentreview-status--due-soon
+{
+    background-color: var(--yellow-300);
+    color: black;
+}
+
+.contentreview-disabledForEntry .contentreview-nextReviewDue,
+.contentreview-disabledForEntry #cr-explicitReviewOn-field,
+.contentreview-disabledForEntry #cr-reviewer-field
+{
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.contentreview-pagination
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+}
+
+@media (max-width: 1000px)
+{
+    .contentreview-summaryCards
+    {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px)
+{
+    .contentreview-summaryCards
+    {
+        grid-template-columns: 1fr;
+    }
+}

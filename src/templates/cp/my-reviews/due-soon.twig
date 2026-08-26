@@ -1,0 +1,9 @@
+{% extends 'content-review/cp/my-reviews/_layout' %}
+
+{% set selectedSidebarItem = 'due_soon' %}
+
+{% block content %}
+    <h2>{{ 'Due soon (in next {days} days)'|t('content-review', { days: dueSoonDays }) }}</h2>
+
+    {% include 'content-review/partials/entries-for-review' with { items: items } %}
+{% endblock %}

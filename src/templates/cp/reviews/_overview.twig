@@ -1,0 +1,74 @@
+<h2>{{ "Overview"|t('content-review') }}</h2>
+
+<div class="contentreview-summary">
+    <div class="contentreview-summaryCards">
+        <div class="contentreview-summaryCard">
+            <div class="contentreview-summaryLabel">{{ "Overdue"|t('content-review') }}</div>
+            <div class="contentreview-summaryValue">{{ summary.overdueCount }}</div>
+            <div class="contentreview-summaryMeta">
+                {{ summary.overduePercent }}% {{ reviewableContentLabel }}
+            </div>
+            <div class="contentreview-summaryBar">
+                <div class="contentreview-summaryBarFill contentreview-summaryBarFill--overdue" style="width: {{ summary.overduePercent }}%"></div>
+            </div>
+        </div>
+
+        <div class="contentreview-summaryCard">
+            <div class="contentreview-summaryLabel">{{ "Due today"|t('content-review') }}</div>
+            <div class="contentreview-summaryValue">{{ summary.dueTodayCount }}</div>
+            <div class="contentreview-summaryMeta">
+                {{ summary.dueTodayPercent }}% {{ reviewableContentLabel }}
+            </div>
+            <div class="contentreview-summaryBar">
+                <div class="contentreview-summaryBarFill contentreview-summaryBarFill--due-today" style="width: {{ summary.dueTodayPercent }}%"></div>
+            </div>
+        </div>
+
+        <div class="contentreview-summaryCard">
+            <div class="contentreview-summaryLabel">{{ 'Due soon (in next {days} days)'|t('content-review', { days: dueSoonDays }) }}</div>
+            <div class="contentreview-summaryValue">{{ summary.dueSoonCount }}</div>
+            <div class="contentreview-summaryMeta">
+                {{ summary.dueSoonPercent }}% {{ reviewableContentLabel }}
+            </div>
+            <div class="contentreview-summaryBar">
+                <div class="contentreview-summaryBarFill contentreview-summaryBarFill--due-soon" style="width: {{ summary.dueSoonPercent }}%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<h2>{{ "Overdue"|t('content-review') }}</h2>
+
+{% include 'content-review/partials/entries-for-review' with {
+    items: itemsOverdue,
+    limit: previewLimit,
+    count: summary.overdueCount,
+    viewAllLink: cpUrl(reviewsBaseUrl ~ '/overdue'),
+    showReviewer: showReviewer,
+} %}
+
+<hr>
+
+<h2>{{ "Due today"|t('content-review') }}</h2>
+
+{% include 'content-review/partials/entries-for-review' with {
+    items: itemsDueToday,
+    limit: previewLimit,
+    count: summary.dueTodayCount,
+    viewAllLink: cpUrl(reviewsBaseUrl ~ '/due-today'),
+    showReviewer: showReviewer,
+} %}
+
+<hr>
+
+<h2>{{ 'Due soon (in next {days} days)'|t('content-review', { days: dueSoonDays }) }}</h2>
+
+{% include 'content-review/partials/entries-for-review' with {
+    items: itemsDueSoon,
+    limit: previewLimit,
+    count: summary.dueSoonCount,
+    viewAllLink: cpUrl(reviewsBaseUrl ~ '/due-soon'),
+    showReviewer: showReviewer,
+} %}

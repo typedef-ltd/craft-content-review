@@ -1,0 +1,79 @@
+{% set showReviewer = showReviewer ?? false %}
+
+{% if items is defined and items is iterable %}
+    {% if limit is defined and limit < count %}
+        <div class="contentreview-entryListHeader">
+            <h4 class="contentreview-entryListHeaderText">{{ "Showing only the top {limit} items"|t('content-review', { limit: limit }) }}</h4>
+
+            {% if viewAllLink is defined and viewAllLink %}
+                <h3 class="contentreview-entryListHeaderAction">
+                    <a href="{{ viewAllLink }}" class="go">{{ "View all"|t('content-review') }}</a>
+                </h3>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if items|length == 0 %}
+        <p class="light">{{ "Nothing for now."|t('content-review') }}</p>
+    {% else %}
+        <table class="data fullwidth">
+            <thead>
+            <tr>
+                <th class="contentreview-entryTableTitle">{{ "Title"|t('app') }}</th>
+                <th>{{ "Section"|t('content-review') }}</th>
+                {% if showReviewer %}
+                    <th>{{ "Reviewer"|t('content-review') }}</th>
+                {% endif %}
+                <th>{{ "Site"|t('app') }}</th>
+                <th class="contentreview-entryTableDue">{{ "Due"|t('content-review') }}</th>
+                <th class="contentreview-entryTableAction"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                {% set entry = item.entry %}
+                {% set due = item.due %}
+                <tr>
+                    <td>
+                        {% if entry.cpEditUrl %}
+                            <a href="{{ entry.cpEditUrl|e('html_attr') }}">{{ entry.title|e }}</a>
+                        {% else %}
+                            {{ entry.title|e }}
+                        {% endif %}
+                    </td>
+                    <td>{{ entry.section ? entry.section.name : "—" }}</td>
+                    {% if showReviewer %}
+                        <td>{{ item.reviewer ? item.reviewer.name : "—" }}</td>
+                    {% endif %}
+                    <td>{{ entry.site ? entry.site.name : "—" }}</td>
+                    <td class="contentreview-entryTableDue">
+                        <span>{{ due|date }}</span>
+                    </td>
+                    <td>
+                        {% if entry.url %}
+                            <a class="btn small" href="{{ entry.url|e('html_attr') }}">{{ "View"|t('app') }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if pageInfo is defined and pageInfo.totalPages > 1 %}
+            <nav class="contentreview-pagination" aria-label="{{ 'Pagination'|t('app') }}">
+                {% if pageInfo.prevUrl %}
+                    <a class="btn" href="{{ pageInfo.prevUrl }}">{{ 'Previous'|t('app') }}</a>
+                {% endif %}
+
+                <span class="light">{{ 'Page {page} of {totalPages}'|t('content-review', {
+                        page: pageInfo.currentPage,
+                        totalPages: pageInfo.totalPages,
+                    }) }}</span>
+
+                {% if pageInfo.nextUrl %}
+                    <a class="btn" href="{{ pageInfo.nextUrl }}">{{ 'Next'|t('app') }}</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% endif %}
+{% endif %}

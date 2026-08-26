@@ -1,0 +1,44 @@
+actor: Tester
+
+paths:
+  tests: tests
+  log: tests/_output
+  output: tests/_output
+  data: tests/_data
+  support: tests/_support
+  envs: tests/_envs
+
+bootstrap: _bootstrap.php
+
+settings:
+  colors: true
+  memory_limit: 1024M
+
+coverage:
+  enabled: true
+  include:
+    - src/*
+  exclude:
+    - src/migrations/*
+    - src/templates/*
+    - src/translations/*
+    - tests/*
+    - vendor/*
+
+modules:
+  config:
+    \craft\test\Craft:
+      configFile: 'tests/_craft/config/test.php'
+      entryUrl: 'http://test.craftcms.test/index.php'
+      projectConfig: {}
+      migrations: []
+      plugins:
+        content-review:
+          class: '\typedef\contentreview\ContentReviewPlugin'
+          handle: content-review
+      cleanup: true
+      transaction: true
+      dbSetup:
+        clean: true
+        setupCraft: true
+      fullMock: false

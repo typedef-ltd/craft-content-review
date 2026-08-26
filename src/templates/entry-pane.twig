@@ -1,0 +1,159 @@
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("typedef\\contentreview\\web\\assets\\ContentReviewAsset") %}
+
+{% set entry = entry ?? element ?? null %}
+{% set siteId = siteId ?? (entry ? entry.siteId : null) %}
+{% set schedule = schedule ?? null %}
+
+{# Raw POSTed values for this request (if any) #}
+{% set posted = craft.app.request.getBodyParam('contentreview') ?? null %}
+
+{% set enabledForEntry = true %}
+{% if settings.allowPerEntryDisabling %}
+    {% set enabledForEntry = (not schedule or schedule.enabled) %}
+    {% if posted is not null and posted.enabled is defined %}
+        {% set enabledForEntry = posted.enabled ? true : false %}
+    {% endif %}
+{% endif %}
+
+<fieldset>
+    {% if not settings.entryReviewPaneAtTop %}
+        <legend class="h6">{{ "Content Review"|t('content-review') }}</legend>
+    {% endif %}
+
+    <div class="meta{% if not enabledForEntry %} contentreview-disabledForEntry{% endif %}" id="cr-wrapper">
+        {% if schedule %}
+            <div id="cr-nextReviewDue" class="contentreview-nextReviewDue {% if not enabledForEntry %}hidden{% endif %}">
+                {% if schedule.isOverdue %}
+                    <span class="contentreview-status contentreview-status--overdue">{{ "Overdue"|t('content-review') }}</span>
+                {% elseif schedule.isDueToday %}
+                    <span class="contentreview-status contentreview-status--due-today">{{ "Due today"|t('content-review') }}</span>
+                {% elseif schedule.isDueSoon %}
+                    <span class="contentreview-status contentreview-status--due-soon">{{ "Due soon"|t('content-review') }}</span>
+                {% endif %}
+
+                {% set daysNormalised = schedule.daysUntilDue|abs %}
+
+                <div class="readable contentreview-reviewDueSummary">
+                    {% if schedule.isDueToday %}
+                        {{ "Review due today"|t('content-review') }}
+                    {% elseif schedule.isOverdue %}
+                        {% if daysNormalised == 1 %}
+                            {{ "Review overdue by {n} day"|t('content-review', { n: daysNormalised }) }}
+                        {% else %}
+                            {{ "Review overdue by {n} days"|t('content-review', { n: daysNormalised }) }}
+                        {% endif %}
+                    {% elseif daysNormalised > 30 %}
+                        {{ "Review due {date}"|t('content-review', {
+                            date: effectiveNextReviewDateFormatted,
+                        }) }}
+                    {% elseif daysNormalised == 1 %}
+                        {{ "Review due in {n} day"|t('content-review', { n: daysNormalised }) }}
+                    {% else %}
+                        {{ "Review due in {n} days"|t('content-review', { n: daysNormalised }) }}
+                    {% endif %}
+                </div>
+
+                {% if daysNormalised < 30 %}
+                    <div>
+                        {{ effectiveNextReviewDateFormatted }}
+                    </div>
+                {% endif %}
+
+                {# Policy hint #}
+                <div class="light contentreview-policyHint">
+                    {% if schedule and schedule.explicitReviewOn %}
+                        {{ "Custom review date"|t('content-review') }}
+                    {% else %}
+                        {% set params = {
+                            n: effectiveIntervalDays,
+                            source: intervalSource == 'section' ? 'section override'|t('content-review') : 'global default'|t('content-review')
+                        } %}
+                        {% if effectiveIntervalDays == 1 %}
+                            {{ "Review every day ({source})"|t('content-review', params) }}
+                        {% else %}
+                            {{ "Review every {n} days ({source})"|t('content-review', params) }}
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <button
+                    type="button"
+                    class="btn contentreview-markReviewedButton {% if not schedule.getIsWithinReviewWindow() %}disabled{% endif %}"
+                    {% if not schedule.getIsWithinReviewWindow() %}disabled{% endif %}
+                    data-content-review-mark-reviewed
+                    data-action-url="{{ actionUrl('content-review/reviews/mark-as-reviewed') }}"
+                    data-element-id="{{ entry.canonicalId ?? entry.id }}"
+                    data-site-id="{{ entry.siteId }}"
+                >
+                    {{ 'Mark as reviewed'|t('content-review') }}
+                </button>
+
+                {% if schedule.lastReviewedOn %}
+                    <h5 class="contentreview-lastReviewed">
+                        {{ "Last reviewed"|t('content-review') }}: {{ schedule.lastReviewedOn|date }}
+                    </h5>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if settings.allowPerEntryCustomDates %}
+            {% set explicitReviewOnInput = explicitReviewOnValue ?? (schedule and schedule.explicitReviewOn ? schedule.explicitReviewOn : null) %}
+            {% if posted is not null and posted.explicitReviewOn is defined %}
+                {% set explicitReviewOnInput = posted.explicitReviewOn %}
+            {% endif %}
+
+            {{ forms.dateField({
+                label: "Custom date"|t('content-review'),
+                id: 'cr-explicitReviewOn',
+                name: 'contentreview[explicitReviewOn]',
+                value: explicitReviewOnInput,
+                instructions: "If set, this exact date will be used for the next review. Otherwise section/global interval applies."|t('content-review'),
+                autocomplete: false,
+                errors: entry.getErrors('contentReviewExplicitReviewOn'),
+            }) }}
+        {% endif %}
+
+        {# Reviewer element(s): prefer POSTed data if present #}
+        {% set reviewerElements = [] %}
+        {% if posted is not null and posted.reviewerUserId is defined %}
+            {% if posted.reviewerUserId and posted.reviewerUserId is iterable and posted.reviewerUserId|length > 0 %}
+                {% set reviewerUser = craft.app.users.getUserById(posted.reviewerUserId[0]) %}
+                {% if reviewerUser %}
+                    {% set reviewerElements = [reviewerUser] %}
+                {% endif %}
+            {% endif %}
+        {% elseif schedule and schedule.reviewerUserId %}
+            {% set reviewerUser = craft.app.users.getUserById(schedule.reviewerUserId) %}
+            {% if reviewerUser %}
+                {% set reviewerElements = [reviewerUser] %}
+            {% endif %}
+        {% endif %}
+
+        {{ forms.elementSelectField({
+            label: "Reviewer"|t('content-review'),
+            instructions: "By default the designated reviewer is the entry's author, but you can override that here"|t('content-review'),
+            id: 'cr-reviewer',
+            name: 'contentreview[reviewerUserId]',
+            elementType: 'craft\\elements\\User',
+            elements: reviewerElements,
+            selectionLabel: "Select reviewer"|t('content-review'),
+            sources: '*',
+            limit: 1,
+            viewMode: 'small',
+            errors: entry.getErrors('contentReviewReviewerUserId'),
+        }) }}
+
+        {% if settings.allowPerEntryDisabling %}
+            {{ hiddenInput('contentreview[enabled]', '0') }}
+
+            {{ forms.lightswitchField({
+                label: 'Content review enabled for this entry'|t('content-review'),
+                name: 'contentreview[enabled]',
+                id: 'cr-enabled',
+                on: enabledForEntry,
+            }) }}
+        {% endif %}
+    </div>
+</fieldset>

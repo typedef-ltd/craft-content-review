@@ -1,0 +1,220 @@
+{% extends '_layouts/cp' %}
+
+{% do view.registerAssetBundle('typedef\\contentreview\\web\\assets\\ContentReviewAsset') %}
+
+{% set title = 'Settings'|t('content-review') %}
+{% set docTitle = title ~ ' - ' ~ "Plugins"|t('app') %}
+{% set fullPageForm = true %}
+{% set selectedSubnavItem = 'settings' %}
+
+{% import '_includes/forms.twig' as forms %}
+
+{% block content %}
+    {{ actionInput('plugins/save-plugin-settings') }}
+    {{ hiddenInput('pluginHandle', 'content-review') }}
+
+    <h2>General settings</h2>
+
+    {{ forms.lightswitchField({
+        label: 'Allow Content Review to be disabled on a per-entry basis'|t('content-review'),
+        name: 'settings[allowPerEntryDisabling]',
+        on: settings.allowPerEntryDisabling ?? true,
+        errors: settings.getErrors('allowPerEntryDisabling'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Allow custom review dates to be set on a per-entry basis'|t('content-review'),
+        name: 'settings[allowPerEntryCustomDates]',
+        on: settings.allowPerEntryCustomDates ?? true,
+        errors: settings.getErrors('allowPerEntryCustomDates'),
+    }) }}
+
+    {{ forms.textField({
+        label: 'Default review interval (days)'|t('content-review'),
+        instructions: 'How many days between content reviews (ignored by any entries with custom review dates)',
+        type: 'number',
+        step: '1',
+        name: 'settings[defaultIntervalDays]',
+        value: settings.defaultIntervalDays,
+        errors: settings.getErrors('defaultIntervalDays'),
+    }) }}
+
+    {{ forms.textField({
+        label: '"Due soon" window (days)'|t('content-review'),
+        instructions: 'How many days ahead of the next review date that the entry becomes marked as "due soon" and is thus reviewable',
+        type: 'number',
+        step: '1',
+        name: 'settings[dueSoonDays]',
+        value: settings.dueSoonDays,
+        errors: settings.getErrors('dueSoonDays'),
+    }) }}
+
+    {% set enabledSites = settings.enabledSites ?? ['all'] %}
+
+    {% set siteOptions = [{ label: "All sites"|t('content-review'), value: 'all' }] %}
+    {% for site in allSites %}
+        {% set siteOptions = siteOptions|merge([{
+            label: site.name ~ " (" ~ site.handle ~ ")",
+            value: site.uid
+        }]) %}
+    {% endfor %}
+
+    {{ forms.checkboxSelectField({
+        label: "Enable Content Review by Site"|t('content-review'),
+        instructions: "Choose which sites participate in Content Review. If “All sites” is selected, individual selections are ignored."|t('content-review'),
+        name: 'settings[enabledSites]',
+        options: siteOptions,
+        values: enabledSites,
+        errors: settings.getErrors('enabledSites'),
+    }) }}
+
+    {# Per-section interval toggle #}
+    {{ forms.lightswitchField({
+        label: 'Use per-section intervals'|t('content-review'),
+        instructions: 'Override the default interval for specific Entry sections.'|t('content-review'),
+        name: 'settings[usePerSectionIntervals]',
+        on: settings.usePerSectionIntervals ?? false,
+        toggle: 'perSectionIntervalsContainer',
+        errors: settings.getErrors('usePerSectionIntervals'),
+    }) }}
+
+    <div id="perSectionIntervalsContainer" class="nested-fields{% if not (settings.usePerSectionIntervals ?? false) %} hidden{% endif %}">
+        {{ forms.editableTableField({
+            label: 'Section-specific intervals'|t('content-review'),
+            instructions: 'Optionally set a review interval (in days) for each entry section.'|t('content-review'),
+            id: 'cr-interval-per-section',
+            name: 'settings[intervalDaysPerSection]',
+            cols: {
+                section: {
+                    heading: 'Section'|t('content-review'),
+                    type: 'heading',
+                },
+                days: {
+                    heading: 'Days'|t('content-review'),
+                    type: 'number',
+                    placeholder: '—',
+                    min: 1,
+                    size: 5,
+                },
+            },
+            rows: perSectionRows,
+            allowAdd: false,
+            allowDelete: false,
+            allowReorder: false,
+            fullWidth: false,
+            errors: settings.getErrors('intervalDaysPerSection'),
+        }) }}
+    </div>
+
+    {% set enabledSections = settings.enabledSections ?? ['all'] %}
+
+    {# Build options array #}
+    {% set sectionOptions = [{ label: "All sections"|t('content-review'), value: 'all' }] %}
+    {% for section in allSections %}
+        {% set sectionOptions = sectionOptions|merge([{
+            label: section.name ~ " (" ~ section.handle ~ ")",
+            value: section.uid
+        }]) %}
+    {% endfor %}
+
+    {{ forms.checkboxSelectField({
+        label: "Enable Content Review by Section"|t('content-review'),
+        instructions: "Choose which sections participate in Content Review. If “All sections” is selected, individual selections are ignored."|t('content-review'),
+        name: 'settings[enabledSections]',
+        options: sectionOptions,
+        values: enabledSections,
+        errors: settings.getErrors('enabledSections'),
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: "Show review pane at top of sidebar"|t('content-review'),
+        instructions: "If disabled, the pane appears below Craft’s standard sidebar content."|t('content-review'),
+        name: 'settings[entryReviewPaneAtTop]',
+        on: settings.entryReviewPaneAtTop,
+        errors: settings.getErrors('entryReviewPaneAtTop'),
+    }) }}
+
+    <hr>
+
+    <h2>Digest settings</h2>
+
+    {{ forms.copytextField({
+        instructions: "Digests must be sent by a daily cron job which runs the send digests command, e.g.:"|t('content-review'),
+        value: "0 9 * * * php craft content-review/digest/send",
+        tip: "The example runs at 9am every day - if you want it to run at another hour, just change the 9 to a different number"|t('content-review'),
+        class: "code",
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Send digest emails'|t('content-review'),
+        instructions: 'Whether digest emails should be sent.'|t('content-review'),
+        tip: 'Can be set on a per-environment basis by setting `sendDigests` in `config/content-review.php`',
+        name: 'settings[sendDigests]',
+        on: settings.sendDigests,
+        toggle: 'minorDigestEmailsLogicContainer',
+        errors: settings.getErrors('sendDigests')
+    }) }}
+
+    <div id="minorDigestEmailsLogicContainer" class="nested-fields{% if not (settings.sendDigests ?? false) %} hidden{% endif %}">
+        {{ forms.lightswitchField({
+            label: 'Send digest emails when the only content is due soon'|t('content-review'),
+            instructions: 'If there is no due or overdue content, digest emails will still be sent if there is some content that is due for review soon'|t('content-review'),
+            name: 'settings[sendDigestsIfOnlyDueSoon]',
+            on: settings.sendDigestsIfOnlyDueSoon,
+            errors: settings.getErrors('sendDigestsIfOnlyDueSoon')
+        }) }}
+    </div>
+
+    {{ forms.selectField({
+        label: 'Digest frequency'|t('content-review'),
+        instructions: 'How often digest emails should be sent.'|t('content-review'),
+        id: 'digestFrequency',
+        name: 'settings[digestFrequency]',
+        value: settings.digestFrequency,
+        options: [
+            { label: 'Daily'|t('content-review'), value: 'daily' },
+            { label: 'Weekly'|t('content-review'), value: 'weekly' },
+        ],
+        errors: settings.getErrors('digestFrequency'),
+    }) }}
+
+    <div id="digestWeekdayContainer" class="nested-fields{% if settings.digestFrequency != 'weekly' %} hidden{% endif %}">
+        {{ forms.selectField({
+            label: 'Weekly digest day'|t('content-review'),
+            instructions: 'Which day weekly digests should be sent on.'|t('content-review'),
+            id: 'digestWeekday',
+            name: 'settings[digestWeekday]',
+            value: settings.digestWeekday,
+            options: [
+                { label: 'Monday'|t('content-review'), value: 1 },
+                { label: 'Tuesday'|t('content-review'), value: 2 },
+                { label: 'Wednesday'|t('content-review'), value: 3 },
+                { label: 'Thursday'|t('content-review'), value: 4 },
+                { label: 'Friday'|t('content-review'), value: 5 },
+                { label: 'Saturday'|t('content-review'), value: 6 },
+                { label: 'Sunday'|t('content-review'), value: 7 },
+            ],
+            errors: settings.getErrors('digestWeekday')
+        }) }}
+    </div>
+
+    {{ forms.autosuggestField({
+        label: 'Global digest recipients'|t('content-review'),
+        instructions: 'Comma-separated list of email addresses of people to send all digest emails to.'|t('content-review'),
+        tip: 'Can be set to an environment variable',
+        name: 'settings[globalDigestEmails]',
+        value: settings.globalDigestEmails,
+        suggestEnvVars: true,
+        errors: settings.getErrors('globalDigestEmails')
+    }) }}
+
+    {{ forms.autosuggestField({
+        label: 'Custom digest template'|t('content-review'),
+        instructions: 'Optional Twig template used to customise the email digest.'|t('content-review'),
+        name: 'settings[customDigestTemplate]',
+        value: settings.customDigestTemplate,
+        suggestions: craft.cp.getTemplateSuggestions(craft.app.path.getSiteTemplatesPath()),
+        errors: settings.getErrors('customDigestTemplate'),
+    }) }}
+
+{% endblock %}

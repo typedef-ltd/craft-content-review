@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="{{ craft.app.language|e('html_attr') }}">
+<head>
+    <meta charset="utf-8">
+    <title>{{ "Content Review Digest"|t('content-review') }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body
+        {
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f8;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1f2328;
+        }
+
+        table
+        {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .wrapper
+        {
+            width: 100%;
+            background-color: #f7f7f8;
+            padding: 24px 0;
+        }
+
+        .container
+        {
+            width: 100%;
+            max-width: 680px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+        }
+
+        .inner
+        {
+            padding: 24px;
+        }
+
+        .eyebrow
+        {
+            font-size: 12px;
+            line-height: 18px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin: 0 0 8px;
+        }
+
+        .title
+        {
+            font-size: 28px;
+            line-height: 34px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 8px;
+        }
+
+        .subhead
+        {
+            font-size: 14px;
+            line-height: 21px;
+            color: #6b7280;
+            margin: 0 0 24px;
+        }
+
+        .cardsRow
+        {
+            width: 100%;
+            margin-bottom: 24px;
+        }
+
+        .cardCell
+        {
+            width: 33.333%;
+            vertical-align: top;
+            padding-right: 12px;
+        }
+
+        .cardCell:last-child
+        {
+            padding-right: 0;
+        }
+
+        .card
+        {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .cardLabel
+        {
+            font-size: 13px;
+            line-height: 18px;
+            color: #6b7280;
+            margin: 0 0 8px;
+        }
+
+        .cardValue
+        {
+            font-size: 30px;
+            line-height: 32px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 8px;
+        }
+
+        .cardMeta
+        {
+            font-size: 13px;
+            line-height: 18px;
+            color: #6b7280;
+            margin: 0 0 12px;
+        }
+
+        .bar
+        {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .barFill
+        {
+            height: 8px;
+            border-radius: 999px;
+        }
+
+        .barFill--overdue
+        {
+            background-color: #dc2626;
+        }
+
+        .barFill--due
+        {
+            background-color: #f97316;
+        }
+
+        .barFill--soon
+        {
+            background-color: #facc15;
+        }
+
+        .hr
+        {
+            border-top: 1px solid #e5e7eb;
+            margin: 24px 0;
+        }
+
+        .sectionTitle
+        {
+            font-size: 20px;
+            line-height: 26px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 16px;
+        }
+
+        .entryCard
+        {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            background-color: #ffffff;
+        }
+
+        .entrySite
+        {
+            font-size: 12px;
+            line-height: 18px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin: 0 0 6px;
+        }
+
+        .entryTitle
+        {
+            font-size: 16px;
+            line-height: 22px;
+            font-weight: 600;
+            margin: 0 0 8px;
+        }
+
+        .entryTitle a
+        {
+            color: #0f62fe;
+            text-decoration: none;
+        }
+
+        .entryMeta
+        {
+            font-size: 13px;
+            line-height: 19px;
+            color: #6b7280;
+            margin: 0 0 8px;
+        }
+
+        .entryLinks
+        {
+            font-size: 13px;
+            line-height: 19px;
+        }
+
+        .entryLinks a
+        {
+            color: #0f62fe;
+            text-decoration: none;
+            margin-right: 12px;
+        }
+
+        .seeAll
+        {
+            font-size: 14px;
+            line-height: 20px;
+            margin-top: 8px;
+        }
+
+        .seeAll a
+        {
+            color: #0f62fe;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer
+        {
+            font-size: 12px;
+            line-height: 18px;
+            color: #9ca3af;
+            margin-top: 24px;
+        }
+
+        @media screen and (max-width: 640px)
+        {
+            .container
+            {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .inner
+            {
+                padding: 20px 16px;
+            }
+
+            .cardCell
+            {
+                display: block;
+                width: 100%;
+                padding-right: 0;
+                padding-bottom: 12px;
+            }
+
+            .cardCell:last-child
+            {
+                padding-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <table role="presentation" width="100%">
+        <tr>
+            <td align="center">
+                <table role="presentation" class="container" width="680">
+                    <tr>
+                        <td class="inner">
+
+                            <p class="eyebrow">{{ "Content Review"|t('content-review') }}</p>
+
+                            <h1 class="title">
+                                {{ "Hello {name},"|t('content-review', {
+                                    name: reviewer ? reviewer.name : "there"|t('content-review')
+                                }) }}
+                            </h1>
+
+                            <p class="subhead">
+                                {{- "Here is your content review digest"|t('content-review') -}}
+                                {%- if forDate is defined and forDate -%}
+                                    {{- " as of {date}"|t('content-review', { date: forDate|date }) -}}
+                                {%- endif -%}
+                                {{- '.' -}}
+                            </p>
+
+                            <table role="presentation" class="cardsRow" width="100%">
+                                <tr>
+                                    <td class="cardCell">
+                                        <div class="card">
+                                            <div class="cardLabel">{{ "Overdue"|t('content-review') }}</div>
+                                            <div class="cardValue">{{ summary.overdueCount }}</div>
+                                            <div class="cardMeta">
+                                                {{ summary.overduePercent }}% {{ reviewableContentLabel }}
+                                            </div>
+                                            <div class="bar">
+                                                <div class="barFill barFill--overdue" style="width: {{ summary.overduePercent }}%;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="cardCell">
+                                        <div class="card">
+                                            <div class="cardLabel">{{ "Due today"|t('content-review') }}</div>
+                                            <div class="cardValue">{{ summary.dueTodayCount }}</div>
+                                            <div class="cardMeta">
+                                                {{ summary.dueTodayPercent }}% {{ reviewableContentLabel }}
+                                            </div>
+                                            <div class="bar">
+                                                <div class="barFill barFill--due" style="width: {{ summary.dueTodayPercent }}%;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="cardCell">
+                                        <div class="card">
+                                            <div class="cardLabel">{{ 'Due soon (in next {days} days)'|t('content-review', { days: dueSoonDays }) }}</div>
+                                            <div class="cardValue">{{ summary.dueSoonCount }}</div>
+                                            <div class="cardMeta">
+                                                {{ summary.dueSoonPercent }}% {{ reviewableContentLabel }}
+                                            </div>
+                                            <div class="bar">
+                                                <div class="barFill barFill--soon" style="width: {{ summary.dueSoonPercent }}%;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <div class="hr"></div>
+
+                            <h2 class="sectionTitle">{{ "Overdue"|t('content-review') }}</h2>
+
+                            {% if itemsOverdue is defined and itemsOverdue|length %}
+                                {% for item in itemsOverdue %}
+                                    {% include 'content-review/emails/partials/entry-card' %}
+                                {% endfor %}
+
+                                {% if summary.overdueCount > previewLimit %}
+                                    <div class="seeAll">
+                                        <a href="{{ reviewsUrl ~ '/overdue' }}">{{ "See all overdue content"|t('content-review') }}</a>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <p class="subhead">{{ "No overdue content."|t('content-review') }}</p>
+                            {% endif %}
+
+                            <div class="hr"></div>
+
+                            <h2 class="sectionTitle">{{ "Due today"|t('content-review') }}</h2>
+
+                            {% if itemsDueToday is defined and itemsDueToday|length %}
+                                {% for item in itemsDueToday %}
+                                    {% include 'content-review/emails/partials/entry-card' %}
+                                {% endfor %}
+
+                                {% if summary.dueTodayCount > previewLimit %}
+                                    <div class="seeAll">
+                                        <a href="{{ reviewsUrl ~ '/due-today' }}">{{ "See all content due today"|t('content-review') }}</a>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <p class="subhead">{{ "No content due today."|t('content-review') }}</p>
+                            {% endif %}
+
+                            <div class="hr"></div>
+
+                            <h2 class="sectionTitle">{{ 'Due soon (in next {days} days)'|t('content-review', { days: dueSoonDays }) }}</h2>
+
+                            {% if itemsDueSoon is defined and itemsDueSoon|length %}
+                                {% for item in itemsDueSoon %}
+                                    {% include 'content-review/emails/partials/entry-card' %}
+                                {% endfor %}
+
+                                {% if summary.dueSoonCount > previewLimit %}
+                                    <div class="seeAll">
+                                        <a href="{{ reviewsUrl ~ '/due-soon' }}">{{ "See all content due soon"|t('content-review') }}</a>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <p class="subhead">{{ "No content due soon."|t('content-review') }}</p>
+                            {% endif %}
+
+                            <p class="footer">
+                                {% if reviewer %}
+                                    {{ "You’re receiving this because you’re listed as a content reviewer for certain content."|t('content-review') }}
+                                {% else %}
+                                    {{ "You’re receiving this because you’re listed as a recipient of global digests."|t('content-review') }}
+                                {% endif %}
+                            </p>
+
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

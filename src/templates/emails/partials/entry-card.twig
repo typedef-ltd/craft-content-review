@@ -1,0 +1,46 @@
+{% set entry = item.entry %}
+{% set due = item.due %}
+
+<div class="entryCard">
+    <div class="entrySite">
+        {% if entry.site %}
+            {{ entry.site.name|e }}
+        {% else %}
+            {{ "Site ID {id}"|t('content-review', { id: entry.siteId }) }}
+        {% endif %}
+    </div>
+
+    <div class="entryTitle">
+        {% if entry.cpEditUrl %}
+            <a href="{{ entry.cpEditUrl|e('html_attr') }}">{{ entry.title|e }}</a>
+        {% else %}
+            {{ entry.title|e }}
+        {% endif %}
+    </div>
+
+    <div class="entryMeta">
+        {% set sectionName = entry.section ? entry.section.name : null %}
+        {% set postDateStr = entry.postDate ? entry.postDate|date('Y-m-d') : null %}
+
+        {% if sectionName %}
+            {{ "Section"|t('content-review') }}: {{ sectionName|e }}
+        {% endif %}
+
+        {% if sectionName and postDateStr %}
+            ·
+        {% endif %}
+
+        {% if postDateStr %}
+            {{ "Post date"|t('content-review') }}: {{ postDateStr }}
+        {% endif %}
+    </div>
+
+    <div class="entryLinks">
+        {% if entry.cpEditUrl %}
+            <a href="{{ entry.cpEditUrl|e('html_attr') }}">{{ "Edit in Control Panel"|t('content-review') }}</a>
+        {% endif %}
+        {% if entry.url %}
+            <a href="{{ entry.url|e('html_attr') }}">{{ "View on site"|t('content-review') }}</a>
+        {% endif %}
+    </div>
+</div>

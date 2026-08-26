@@ -1,0 +1,12 @@
+{% extends 'content-review/cp/all-reviews/_layout' %}
+
+{% set selectedSidebarItem = 'due_today' %}
+
+{% block content %}
+    <h2>{{ "Due today"|t('content-review') }}</h2>
+
+    {% include 'content-review/partials/entries-for-review' with {
+        items: items,
+        showReviewer: showReviewer,
+    } %}
+{% endblock %}
