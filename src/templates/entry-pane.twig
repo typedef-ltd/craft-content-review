@@ -100,8 +100,19 @@
 
         {% if settings.allowPerEntryCustomDates %}
             {% set explicitReviewOnInput = explicitReviewOnValue ?? (schedule and schedule.explicitReviewOn ? schedule.explicitReviewOn : null) %}
+
             {% if posted is not null and posted.explicitReviewOn is defined %}
-                {% set explicitReviewOnInput = posted.explicitReviewOn %}
+                {% set postedExplicitReviewOn = posted.explicitReviewOn %}
+
+                {% if postedExplicitReviewOn is iterable %}
+                    {% if postedExplicitReviewOn.date is defined and postedExplicitReviewOn.date %}
+                        {% set explicitReviewOnInput = postedExplicitReviewOn %}
+                    {% else %}
+                        {% set explicitReviewOnInput = null %}
+                    {% endif %}
+                {% else %}
+                    {% set explicitReviewOnInput = postedExplicitReviewOn ?: null %}
+                {% endif %}
             {% endif %}
 
             {{ forms.dateField({
