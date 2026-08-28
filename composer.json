@@ -5,9 +5,9 @@
   "license": "proprietary",
   "support": {
     "email": "joe@typedef.co",
-    "issues": "https://github.com/typedef/craft-content-review/issues?state=open",
-    "source": "https://github.com/typedef/craft-content-review",
-    "docs": "https://github.com/typedef/craft-content-review/blob/main/README.md"
+    "issues": "https://github.com/typedef-ltd/craft-content-review/issues?state=open",
+    "source": "https://github.com/typedef-ltd/craft-content-review",
+    "docs": "https://github.com/typedef-ltd/craft-content-review/blob/main/README.md"
   },
   "require": {
     "php": ">=8.2",
