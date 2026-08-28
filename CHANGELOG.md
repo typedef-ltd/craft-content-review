@@ -1,5 +1,5 @@
 # Content Review Changelog
 
-## 1.0.0 - unreleased
+## 1.0.0 - 2026-08-28
 ### Added
 * Initial release
